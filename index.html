@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Mouseover (Three.js)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel=stylesheet href="css/base.css"/>
+</head>
+<body>
+
+<script src="js/three.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/Stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+
+<!-- ------------------------------------------------------------ -->
+<div style="width: 40%; float: left">Тест</div>
+<div id="ThreeJS" style="float: right"></div>
+<script>
+
+    // MAIN
+    var mesh;
+    // standard global variables
+    var widthK = 1;
+    var container, scene, camera, renderer, controls, stats;
+    var keyboard = new THREEx.KeyboardState();
+    var clock = new THREE.Clock();
+    var outlineMesh;
+    var selected = false;
+    var selected_part = false;
+    // custom global variables
+    var cube;
+    var projector, mouse = { x: 0, y: 0 }, INTERSECTED, INTERSECTED2;
+    var scale_index = 20;
+    var pos_x = 4 * scale_index,
+            pos_y = -4 * scale_index,
+            pos_z = 5 * scale_index,
+            sc_x = 3 * scale_index,
+            sc_y= 3 * scale_index,
+            sc_z=3 * scale_index;
+    var canvas1, context1, texture1;
+    var sprite1;
+
+
+    init();
+    animate();
+
+    // FUNCTIONS
+    function init()
+    {
+        // SCENE
+        scene = new THREE.Scene();
+        // CAMERA
+        var SCREEN_WIDTH = window.innerWidth * widthK, SCREEN_HEIGHT = window.innerHeight;
+        var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 10000;
+        camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+        scene.add(camera);
+        camera.position.set(0,0,600);
+        camera.lookAt(scene.position);
+        // RENDERER
+        if ( Detector.webgl )
+            renderer = new THREE.WebGLRenderer( {antialias:false} );
+        else
+            renderer = new THREE.CanvasRenderer();
+        renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        container = document.getElementById( 'ThreeJS' );
+        container.appendChild( renderer.domElement );
+        // EVENTS
+        THREEx.WindowResize(renderer, camera);
+        THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+        // CONTROLS
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+        // STATS
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.bottom = '0px';
+        stats.domElement.style.zIndex = 100;
+        container.appendChild( stats.domElement );
+        // LIGHT
+        var hemiLight, dirLight;
+        hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        hemiLight.color.setHSL( 0.6, 1, 0.6 );
+        hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+        hemiLight.position.set( 0, 500, 0 );
+        scene.add( hemiLight );
+
+        dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        dirLight.color.setHSL( 0.1, 1, 0.95 );
+        dirLight.position.set( -1, 1.75, 1 );
+        dirLight.position.multiplyScalar( 50 );
+        scene.add( dirLight );
+
+        // SKYBOX/FOG
+//        var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+//        var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+//        var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+//        scene.add(skyBox);
+
+        ////////////
+        // CUSTOM //
+        ////////////
+
+        var brain_1l, brain_1r, brain_2l, brain_2r, brain_3l, brain_3r, brain_4l, brain_4r, brain_5, brain_6;
+        var loader = new THREE.JSONLoader();
+
+
+
+
+        loader.load("/js/brain/1l.js", function(object,color){
+            brain_1l = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#1313CD",wireframe:false})
+            );
+            brain_1l.position.set(pos_x,pos_y,pos_z);
+            brain_1l.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_1l);
+            renderer.render(scene,camera);
+        });
+        loader.load("/js/brain/1r.js", function(object,color){
+            brain_1r = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#1313CD",wireframe:false})
+            );
+            brain_1r.position.set(pos_x,pos_y,pos_z);
+            brain_1r.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_1r);
+            renderer.render(scene,camera);
+        });
+
+        loader.load("/js/brain/2l.js", function(object,color){
+            brain_2l = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#7B5FB4",wireframe:false})
+            );
+            brain_2l.position.set(pos_x,pos_y,pos_z);
+            brain_2l.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_2l);
+            renderer.render(scene,camera);
+        });
+        loader.load("/js/brain/2r.js", function(object,color){
+            brain_2r = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#7B5FB4",wireframe:false})
+            );
+            brain_2r.position.set(pos_x,pos_y,pos_z);
+            brain_2r.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_2r);
+            renderer.render(scene,camera);
+        });
+
+        loader.load("/js/brain/3l.js", function(object,color){
+            brain_3l = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#4DFFEE",wireframe:false})
+            );
+            brain_3l.position.set(pos_x,pos_y,pos_z);
+            brain_3l.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_3l);
+            renderer.render(scene,camera);
+        });
+        loader.load("/js/brain/3r.js", function(object,color){
+            brain_3r = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#4DFFEE",wireframe:false})
+            );
+            brain_3r.position.set(pos_x,pos_y,pos_z);
+            brain_3r.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_3r);
+            renderer.render(scene,camera);
+        });
+
+        loader.load("/js/brain/4l.js", function(object,color){
+            brain_4l = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#FFEB4D",wireframe:false})
+            );
+            brain_4l.position.set(pos_x,pos_y,pos_z);
+            brain_4l.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_4l);
+            renderer.render(scene,camera);
+        });
+        loader.load("/js/brain/4r.js", function(object,color){
+            brain_4r = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#FFEB4D",wireframe:false})
+            );
+            brain_4r.position.set(pos_x,pos_y,pos_z);
+            brain_4r.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_4r);
+            renderer.render(scene,camera);
+        });
+
+        loader.load("/js/brain/5.js", function(object,color){
+            brain_5 = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#E81411",wireframe:false})
+            );
+            brain_5.position.set(pos_x,pos_y,pos_z);
+            brain_5.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_5);
+            renderer.render(scene,camera);
+        });
+        loader.load("/js/brain/6.js", function(object,color){
+            brain_6 = new THREE.Mesh(
+                    object,
+                    //new THREE.MeshFaceMaterial(color)
+                    new THREE.MeshLambertMaterial({color:"#E8D9D9",wireframe:false})
+            );
+            brain_6.position.set(pos_x,pos_y,pos_z);
+            brain_6.scale.set(sc_x,sc_y,sc_z);
+            scene.add(brain_6);
+            renderer.render(scene,camera);
+        });
+
+
+
+
+        //////////////////////////////////////////
+
+        // initialize object to perform world/screen calculations
+        projector = new THREE.Projector();
+
+        // when the mouse moves, call the given function
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        // when the mouse moves, call the given function
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+    }
+
+
+
+    function onDocumentMouseMove( event )
+    {
+        // the following line would stop any other event handler from firing
+        // (such as the mouse's TrackballControls)
+        // event.preventDefault();
+        // update sprite position
+
+
+        // update the mouse variable
+        mouse.x = ( (event.clientX - (1 - widthK) *window.innerWidth)  / (window.innerWidth* widthK) ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+
+    }
+
+    function onDocumentMouseDown( event )
+    {
+
+
+
+        // find intersections
+
+        // create a Ray with origin at the mouse position
+        //   and direction into the scene (camera direction)
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+        projector.unprojectVector( vector, camera );
+        var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+        // create an array containing all objects in the scene with which the ray intersects
+        var intersects = ray.intersectObjects( scene.children );
+
+        // if there is one (or more) intersections
+
+            if ( intersects.length > 0 )
+            {
+                if (!selected_part) {
+                    var lastObject;
+                    var allChildren = scene.children;
+                    for (var i = 0; i< allChildren.length; i++) {
+                        lastObject = allChildren[i];
+
+                        if (lastObject instanceof THREE.Mesh) {
+                            lastObject.material.wireframe = true;
+                        }
+                    }
+                    widthK = 0.6;
+                    var SCREEN_WIDTH = window.innerWidth * widthK, SCREEN_HEIGHT = window.innerHeight;
+                    var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 10000;
+                    camera.aspect = ASPECT;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+                    selected_part = true;
+                } else {
+                    var lastObject;
+                    var allChildren = scene.children;
+                    for (var i = 0; i< allChildren.length; i++) {
+                        lastObject = allChildren[i];
+
+                        if (lastObject instanceof THREE.Mesh) {
+                            lastObject.material.wireframe = false;
+                        }
+                    }
+                    widthK = 1;
+                    var SCREEN_WIDTH = window.innerWidth * widthK, SCREEN_HEIGHT = window.innerHeight;
+                    var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 10000;
+                    camera.aspect = ASPECT;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+                    selected_part = false;
+                }
+                // if the closest object intersected is not the currently stored intersection object
+                if ( intersects[ 0 ].object != INTERSECTED2 )
+                {
+                    // restore previous intersection object (if it exists) to its original color
+                    if ( INTERSECTED2 ) {
+                        INTERSECTED2.material.color.setHex( INTERSECTED2.currentHex );
+                    }
+
+                    // store reference to closest object as current intersection object
+                    INTERSECTED2 = intersects[ 0 ].object;
+
+
+
+
+                    // store color of closest object (for later restoration)
+                    INTERSECTED2.currentHex = INTERSECTED2.material.color.getHex();
+                    // set a new color for closest object
+                    //INTERSECTED2.material.color.setHex( 0xffff00 );
+                    INTERSECTED2.material.wireframe = false;
+
+
+                }
+            }
+            else // there are no intersections
+            {
+                // restore previous intersection object (if it exists) to its original color
+                if ( INTERSECTED2 ) {
+                    INTERSECTED2.material.color.setHex( INTERSECTED2.currentHex );
+                }
+
+                // remove previous intersection object reference
+                //     by setting current intersection object to "nothing"
+                INTERSECTED2 = null;
+
+            }
+
+
+    }
+
+    function animate()
+    {
+        requestAnimationFrame( animate );
+
+
+        render();
+        update();
+    }
+
+    function update()
+    {
+        // find intersections
+
+        // create a Ray with origin at the mouse position
+        //   and direction into the scene (camera direction)
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+        projector.unprojectVector( vector, camera );
+        var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+        // create an array containing all objects in the scene with which the ray intersects
+        var intersects = ray.intersectObjects( scene.children );
+
+        // INTERSECTED = the object in the scene currently closest to the camera
+        //		and intersected by the Ray projected from the mouse position
+
+        // if there is one (or more) intersections
+        if ( intersects.length > 0 )
+        {
+            // if the closest object intersected is not the currently stored intersection object
+            if ( intersects[ 0 ].object != INTERSECTED )
+            {
+                // restore previous intersection object (if it exists) to its original color
+                if ( INTERSECTED ) {
+                    //INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                    if (selected) {
+                        var allChildren = scene.children;
+                        var lastObject = allChildren[allChildren.length-1];
+                        if (lastObject instanceof THREE.Mesh) {
+                            scene.remove(lastObject);
+                        }
+                        selected = false;
+                    }
+                    // update text, if it has a "name" field.
+
+                }
+
+                // store reference to closest object as current intersection object
+                INTERSECTED = intersects[ 0 ].object;
+                // store color of closest object (for later restoration)
+                //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+                // set a new color for closest object
+                //INTERSECTED.material.color.setHex( 0xffff00 );
+
+                if (!selected) {
+                   // var outlineMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.BackSide } );
+                    var outlineMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
+                    var outlineMesh = new THREE.Mesh( INTERSECTED.geometry, outlineMaterial );
+                    //outlineMesh.position = INTERSECTED.position;
+                    outlineMesh.position.set(pos_x * 1.05,pos_y *1.05, pos_z * 1.05);
+                    outlineMesh.scale.set(sc_x * 1.05,sc_y * 1.05,sc_z *1.05);
+                    outlineMesh.name = 'outlineMesh';
+                    //outlineMesh.scale.multiplyScalar(1.05);
+                    scene.add( outlineMesh );
+                    selected = true;
+                }
+
+
+            }
+        }
+        else // there are no intersections
+        {
+            // restore previous intersection object (if it exists) to its original color
+            if ( INTERSECTED ) {
+                //INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                if (selected) {
+                    var allChildren = scene.children;
+                    var lastObject = allChildren[allChildren.length-1];
+                    if (lastObject instanceof THREE.Mesh) {
+                        scene.remove(lastObject);
+                    }
+                    selected = false;
+                }
+
+            }
+
+            // remove previous intersection object reference
+            //     by setting current intersection object to "nothing"
+            INTERSECTED = null;
+
+        }
+
+
+        if ( keyboard.pressed("z") )
+        {
+            // do something
+        }
+        controls.rotateLeft(2 * Math.PI * 0.0005)
+        controls.update();
+        stats.update();
+    }
+
+    function render()
+    {
+        renderer.render( scene, camera );
+    }
+
+</script>
+
+</body>
+</html>
