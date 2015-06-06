@@ -223,17 +223,17 @@ THREE.Projector = function () {
 
 };
 
-THREE.CanvasRenderer = function () {
-
-	THREE.error( 'THREE.CanvasRenderer has been moved to /examples/js/renderers/CanvasRenderer.js' );
-
-	this.domElement = document.createElement( 'canvas' );
-	this.clear = function () {};
-	this.render = function () {};
-	this.setClearColor = function () {};
-	this.setSize = function () {};
-
-};
+//THREE.CanvasRenderer = function () {
+//
+//	THREE.error( 'THREE.CanvasRenderer has been moved to /examples/js/renderers/CanvasRenderer.js' );
+//
+//	this.domElement = document.createElement( 'canvas' );
+//	this.clear = function () {};
+//	this.render = function () {};
+//	this.setClearColor = function () {};
+//	this.setSize = function () {};
+//
+//};
 
 // File:src/math/Color.js
 

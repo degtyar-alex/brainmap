@@ -9,6 +9,8 @@
 <body>
 
 <script src="js/three.js"></script>
+<script src="js/CanvasRenderer.js"></script>
+<script src="js/Projector.js"></script>
 <script src="js/Detector.js"></script>
 <script src="js/Stats.js"></script>
 <script src="js/OrbitControls.js"></script>
@@ -67,7 +69,7 @@
         scene.add(camera);
         camera.position.set(0,0,600);
         camera.lookAt(scene.position);
-        // RENDERER
+        RENDERER
         if ( Detector.webgl )
             renderer = new THREE.WebGLRenderer( {antialias:false} );
         else
