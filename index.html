@@ -113,6 +113,11 @@
         var brain_1l, brain_1r, brain_2l, brain_2r, brain_3l, brain_3r, brain_4l, brain_4r, brain_5, brain_6;
         var loader = new THREE.JSONLoader();
 
+        var cubeGeometry = new THREE.CubeGeometry( 50, 50, 50 );
+        var cubeMaterial = new THREE.MeshBasicMaterial( { color: 0x000088 } );
+        cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
+        cube.position.set(0,26,0);
+        scene.add(cube);
 
 
 
